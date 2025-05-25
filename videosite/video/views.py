@@ -1,3 +1,12 @@
 from django.shortcuts import render
+from .models import *
+from django.views import View
 
-# Create your views here.
+def base(request):
+    return render(request,)
+
+
+class VideoViews(View):
+    form = Video()
+
+
