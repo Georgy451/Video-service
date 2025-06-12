@@ -1,0 +1,59 @@
+.video-detail-card {
+  width: 800px; /* Увеличена ширина окна */
+  margin: 40px auto;
+  padding: 16px;
+  background: #fff;
+  border-radius: 18px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  font-family: Arial, sans-serif;
+}
+
+.video-detail-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.video-detail-avatar {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: #ddd;
+}
+
+.video-detail-user {
+  font-size: 20px;
+  font-weight: bold;
+  color: #333;
+}
+
+.video-detail-video {
+  width: 100%;
+  aspect-ratio: 16/9;
+  background: #000;
+  border-radius: 12px;
+  overflow: hidden;
+  margin-bottom: 16px;
+}
+
+.video-detail-video video {
+  width: 100%;
+  height: 100%;
+  object-fit: contain; /* Видео будет полностью видно */
+  border-radius: 12px;
+}
+
+.video-detail-footer {
+  display: flex;
+  justify-content: space-between;
+  font-size: 18px;
+  color: #555;
+}
+
+.video-detail-likes,
+.video-detail-comments {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}

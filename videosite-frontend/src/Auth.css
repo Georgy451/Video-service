@@ -1,0 +1,127 @@
+.register-bg {
+  min-height: 100vh;
+  background: linear-gradient(120deg, #a1c4fd 0%, #c2e9fb 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.register-card {
+  background: #fff;
+  border-radius: 18px;
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.18);
+  padding: 40px 32px 32px 32px;
+  max-width: 400px;
+  width: 100%;
+  animation: fadeIn 0.7s;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(30px);}
+  to { opacity: 1; transform: translateY(0);}
+}
+
+.register-logo {
+  text-align: center;
+  font-size: 2.3rem;
+  font-weight: 800;
+  color: #2563eb;
+  letter-spacing: 2px;
+  margin-bottom: 18px;
+  font-family: 'Segoe UI', 'Arial', sans-serif;
+}
+
+.auth-container {
+  max-width: 400px;
+  margin: 48px auto;
+  background: #fff;
+  border-radius: 16px;
+  padding: 32px 24px 24px 24px;
+  box-shadow: 0 2px 16px #0001;
+  font-family: inherit;
+}
+
+.auth-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 28px;
+}
+
+.auth-header h1 {
+  font-size: 2rem;
+  font-weight: 700;
+  margin: 0;
+  color: #222;
+}
+
+.auth-switch {
+  background: #3b82f6;
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  padding: 10px 22px;
+  font-size: 1.1rem;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background 0.2s, box-shadow 0.2s;
+  box-shadow: 0 2px 8px #3b82f633;
+}
+
+.auth-switch:hover {
+  background: #2563eb;
+  box-shadow: 0 4px 16px #2563eb33;
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.auth-input {
+  font-size: 1.1rem;
+  padding: 16px 14px;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 10px;
+  outline: none;
+  transition: border 0.2s, box-shadow 0.2s;
+  background: #f7fafc;
+  box-shadow: 0 1px 4px #2563eb11;
+}
+
+.auth-input:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 2px 8px #3b82f622;
+}
+
+.auth-submit {
+  margin-top: 12px;
+  background: linear-gradient(90deg, #2563eb 0%, #3b82f6 100%);
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  padding: 16px 0;
+  font-size: 1.2rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s, box-shadow 0.2s;
+  box-shadow: 0 2px 12px #2563eb22;
+  letter-spacing: 1px;
+}
+
+.auth-submit:hover {
+  background: linear-gradient(90deg, #1e40af 0%, #2563eb 100%);
+  box-shadow: 0 4px 24px #2563eb33;
+}
+
+.auth-link {
+  margin: 24px auto 0 auto;
+  display: block;
+  background: none;
+  border: none;
+  color: #2563eb;
+  font-size: 1.1rem;
+  cursor: pointer;
+  text-decoration: underline;
+}
