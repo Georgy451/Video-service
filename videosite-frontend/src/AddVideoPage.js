@@ -38,6 +38,11 @@ function AddVideoPage({ onBack }) {
     formData.append('emotion', emotion);
     formData.append('location', location);
 
+    const userId = localStorage.getItem('userId');
+    if (userId) {
+      formData.append('user_id', userId);
+    }
+
     try {
       const response = await fetch('http://localhost:8000/api/moments/', {
         method: 'POST',
