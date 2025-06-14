@@ -1,13 +1,5 @@
 import React, { useEffect, useState } from "react";
 
-const EMOJIS = [
-  { icon: "😄", label: "Радость" },
-  { icon: "😢", label: "Грусть" },
-  { icon: "😠", label: "Злость" },
-  { icon: "😍", label: "Влюблённость" },
-  { icon: "😎", label: "Крутость" },
-];
-
 function ProfilePage() {
   const [username, setUsername] = useState("");
   const [userVideos, setUserVideos] = useState([]);
@@ -21,16 +13,12 @@ function ProfilePage() {
   }, []);
 
   useEffect(() => {
-    // Запрос к API для получения видео пользователя
-    fetch("http://localhost:8000/api/videos") // Замените URL на ваш API
+    // Запрос к API для получения всех видео пользователей
+    fetch("http://localhost:8000/api/moments/")
       .then((res) => res.json())
-      .then((data) => {
-        // Фильтрация видео по имени пользователя
-        const filteredVideos = data.filter((video) => video.user === username);
-        setUserVideos(filteredVideos);
-      })
+      .then((data) => setUserVideos(data))
       .catch((err) => console.error("Ошибка загрузки данных:", err));
-  }, [username]);
+  }, []);
 
   return (
     <div
@@ -96,34 +84,6 @@ function ProfilePage() {
           {username || "Гость"}
         </div>
 
-        {/* Эмоции */}
-        <div
-          style={{
-            background: "#f6f4fd",
-            borderRadius: 20,
-            padding: "18px 0",
-            marginBottom: 32,
-            display: "flex",
-            justifyContent: "center",
-            gap: 22,
-            boxShadow: "0 2px 12px #bbaaff11",
-          }}
-        >
-          {EMOJIS.map((em) => (
-            <span
-              key={em.icon}
-              title={em.label}
-              style={{
-                fontSize: 44,
-                cursor: "pointer",
-                transition: "transform 0.15s",
-                userSelect: "none",
-              }}
-            >
-              {em.icon}
-            </span>
-          ))}
-        </div>
         {/* Сетка видео */}
         <div style={{ width: "100%", marginBottom: 12 }}>
           <div
@@ -160,7 +120,7 @@ function ProfilePage() {
                 }}
               >
                 <video
-                  src={video.url}
+                  src={video.video}
                   controls
                   style={{
                     width: "100%",
