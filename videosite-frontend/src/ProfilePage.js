@@ -13,11 +13,16 @@ function ProfilePage() {
   }, []);
 
   useEffect(() => {
-    // Запрос к API для получения всех видео пользователей
-    fetch("http://localhost:8000/api/moments/")
-      .then((res) => res.json())
-      .then((data) => setUserVideos(data))
-      .catch((err) => console.error("Ошибка загрузки данных:", err));
+    // Получение ID пользователя из LocalStorage
+    const userId = localStorage.getItem("userId");
+
+    if (userId) {
+      // Запрос к API для получения видео текущего пользователя
+      fetch(`http://localhost:8000/api/moments/?user=${userId}`)
+        .then((res) => res.json())
+        .then((data) => setUserVideos(data))
+        .catch((err) => console.error("Ошибка загрузки данных:", err));
+    }
   }, []);
 
   return (
