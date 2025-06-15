@@ -58,6 +58,14 @@
   gap: 6px;
 }
 
+.video-detail-comments {
+  cursor: pointer; /* Добавлен указатель мыши */
+}
+
+.video-detail-comments:hover {
+  color: #2563eb; /* Изменение цвета при наведении */
+}
+
 .comments-section {
   margin-top: 20px;
   padding: 16px;

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useParams } from "react-router-dom";
 import "./VideoDetailPage.css";
 
@@ -7,6 +7,8 @@ function VideoDetailPage() {
   const [videoData, setVideoData] = useState(null);
   const [comments, setComments] = useState([]);
   const [newComment, setNewComment] = useState("");
+  const [showCommentInput, setShowCommentInput] = useState(false);
+  const commentInputRef = useRef(null); // Реф для кнопки добавления комментария
 
   useEffect(() => {
     // Загрузка данных видео с сервера
@@ -24,6 +26,11 @@ function VideoDetailPage() {
       setComments([...comments, newComment]);
       setNewComment("");
     }
+  };
+
+  const handleCommentClick = () => {
+    setShowCommentInput(true);
+    commentInputRef.current?.scrollIntoView({ behavior: "smooth" }); // Прокрутка к кнопке
   };
 
   if (!videoData) {
@@ -47,7 +54,7 @@ function VideoDetailPage() {
         <div className="video-detail-likes">
           ❤️ <span>{videoData.likes}</span>
         </div>
-        <div className="video-detail-comments">
+        <div className="video-detail-comments" onClick={handleCommentClick}>
           💬 <span>{comments.length}</span>
         </div>
       </div>
@@ -58,15 +65,17 @@ function VideoDetailPage() {
             <li key={index}>{comment}</li>
           ))}
         </ul>
-        <div className="add-comment">
-          <input
-            type="text"
-            value={newComment}
-            onChange={(e) => setNewComment(e.target.value)}
-            placeholder="Добавить комментарий..."
-          />
-          <button onClick={handleAddComment}>Отправить</button>
-        </div>
+        {showCommentInput && (
+          <div className="add-comment" ref={commentInputRef}>
+            <input
+              type="text"
+              value={newComment}
+              onChange={(e) => setNewComment(e.target.value)}
+              placeholder="Добавить комментарий..."
+            />
+            <button onClick={handleAddComment}>Отправить</button>
+          </div>
+        )}
       </div>
     </div>
   );
