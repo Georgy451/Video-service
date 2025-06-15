@@ -7,30 +7,51 @@ function VideoDetailPage() {
   const [videoData, setVideoData] = useState(null);
   const [comments, setComments] = useState([]);
   const [newComment, setNewComment] = useState("");
-  const [showCommentInput, setShowCommentInput] = useState(false);
-  const commentInputRef = useRef(null); // Реф для кнопки добавления комментария
+  const commentInputRef = useRef(null);
 
   useEffect(() => {
-    // Загрузка данных видео с сервера
     fetch(`http://localhost:8000/api/moments/${id}/`)
       .then((res) => res.json())
       .then((data) => {
         setVideoData(data);
-        setComments(data.comments || []);
+        setComments(data.comments ? data.comments.split("\n") : []);
       })
       .catch((err) => console.error("Ошибка загрузки видео:", err));
   }, [id]);
 
-  const handleAddComment = () => {
-    if (newComment.trim()) {
-      setComments([...comments, newComment]);
-      setNewComment("");
+  const handleAddLike = async () => {
+    try {
+      const response = await fetch(`http://localhost:8000/api/moments/${id}/like/`, {
+        method: "POST",
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setVideoData((prev) => ({ ...prev, likes: data.likes }));
+      }
+    } catch (error) {
+      console.error("Ошибка добавления лайка:", error);
     }
   };
 
-  const handleCommentClick = () => {
-    setShowCommentInput(true);
-    commentInputRef.current?.scrollIntoView({ behavior: "smooth" }); // Прокрутка к кнопке
+  const handleAddComment = async () => {
+    if (newComment.trim()) {
+      try {
+        const response = await fetch(`http://localhost:8000/api/moments/${id}/comment/`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ comment: newComment }),
+        });
+        if (response.ok) {
+          const data = await response.json();
+          setComments(data.comments);
+          setNewComment("");
+        }
+      } catch (error) {
+        console.error("Ошибка добавления комментария:", error);
+      }
+    }
   };
 
   if (!videoData) {
@@ -51,10 +72,10 @@ function VideoDetailPage() {
         />
       </div>
       <div className="video-detail-footer">
-        <div className="video-detail-likes">
+        <div className="video-detail-likes" onClick={handleAddLike}>
           ❤️ <span>{videoData.likes}</span>
         </div>
-        <div className="video-detail-comments" onClick={handleCommentClick}>
+        <div className="video-detail-comments" onClick={() => commentInputRef.current?.scrollIntoView({ behavior: "smooth" })}>
           💬 <span>{comments.length}</span>
         </div>
       </div>
@@ -65,17 +86,15 @@ function VideoDetailPage() {
             <li key={index}>{comment}</li>
           ))}
         </ul>
-        {showCommentInput && (
-          <div className="add-comment" ref={commentInputRef}>
-            <input
-              type="text"
-              value={newComment}
-              onChange={(e) => setNewComment(e.target.value)}
-              placeholder="Добавить комментарий..."
-            />
-            <button onClick={handleAddComment}>Отправить</button>
-          </div>
-        )}
+        <div className="add-comment" ref={commentInputRef}>
+          <input
+            type="text"
+            value={newComment}
+            onChange={(e) => setNewComment(e.target.value)}
+            placeholder="Добавить комментарий..."
+          />
+          <button onClick={handleAddComment}>Отправить</button>
+        </div>
       </div>
     </div>
   );

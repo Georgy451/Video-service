@@ -8,6 +8,7 @@ from rest_framework import status
 from .models import Profile
 from django.contrib.auth.models import User
 from rest_framework.parsers import MultiPartParser, FormParser
+from rest_framework.decorators import action
 
 
 
@@ -38,6 +39,24 @@ class MomentViewSet(viewsets.ModelViewSet):
             serializer.save(user_id=user_id)
         else:
             serializer.save()
+
+    @action(detail=True, methods=['post'], url_path='like')
+    def add_like(self, request, pk=None):
+        moment = self.get_object()
+        moment.likes += 1
+        moment.save()
+        return Response({"likes": moment.likes}, status=status.HTTP_200_OK)
+
+    @action(detail=True, methods=['post'], url_path='comment')
+    def add_comment(self, request, pk=None):
+        moment = self.get_object()
+        new_comment = request.data.get("comment")
+        if new_comment:
+            moment.comments = f"{moment.comments}\n{new_comment}" if moment.comments else new_comment
+            moment.save()
+            return Response({"comments": moment.comments.split("\n")}, status=status.HTTP_200_OK)
+        return Response({"detail": "Комментарий обязателен"}, status=status.HTTP_400_BAD_REQUEST)
+
 
 class AvatarUploadAPI(APIView):
     parser_classes = (MultiPartParser, FormParser)  
