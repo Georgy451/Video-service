@@ -1,14 +1,29 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 
 function ProfilePage() {
   const [username, setUsername] = useState("");
   const [userVideos, setUserVideos] = useState([]);
+  const [avatar, setAvatar] = useState(null); // Состояние для аватара
+  const fileInputRef = useRef(null); // Реф для поля загрузки файла
 
   useEffect(() => {
     // Получение имени пользователя из LocalStorage
     const storedUsername = localStorage.getItem("username");
     if (storedUsername) {
       setUsername(storedUsername);
+    }
+  }, []);
+
+  useEffect(() => {
+    // Получение ID пользователя из LocalStorage
+    const userId = localStorage.getItem("userId");
+
+    if (userId) {
+      // Запрос к API для получения аватара текущего пользователя
+      fetch(`http://localhost:8000/api/profiles/${userId}/`)
+        .then((res) => res.json())
+        .then((data) => setAvatar(data.avatar))
+        .catch((err) => console.error("Ошибка загрузки аватара:", err));
     }
   }, []);
 
@@ -24,6 +39,38 @@ function ProfilePage() {
         .catch((err) => console.error("Ошибка загрузки данных:", err));
     }
   }, []);
+
+  const handleAvatarClick = () => {
+    fileInputRef.current.click(); // Открытие диалога выбора файла
+  };
+
+  const handleFileChange = async (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const formData = new FormData();
+      formData.append("avatar", file);
+
+      const userId = localStorage.getItem("userId");
+      formData.append("user_id", userId); // Добавляем user_id в FormData
+
+      console.log("Отправляемые данные:", { userId, avatar: file.name }); // Логирование данных
+
+      try {
+        const response = await fetch(`http://localhost:8000/api/upload-avatar/`, {
+          method: "PATCH",
+          body: formData,
+        });
+        if (response.ok) {
+          const data = await response.json();
+          setAvatar(data.avatar); // Обновление аватара
+        } else {
+          console.error("Ошибка загрузки аватара");
+        }
+      } catch (error) {
+        console.error("Ошибка соединения:", error);
+      }
+    }
+  };
 
   return (
     <div
@@ -55,27 +102,38 @@ function ProfilePage() {
             width: 160,
             height: 160,
             borderRadius: "50%",
-            background: "linear-gradient(135deg, #ede9fe 60%, #c7d2fe 100%)",
+            background: avatar ? `url(${avatar}) center/cover` : "linear-gradient(135deg, #ede9fe 60%, #c7d2fe 100%)",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
             marginBottom: 24,
             boxShadow: "0 2px 16px #bbaaff22",
+            cursor: "pointer",
           }}
+          onClick={handleAvatarClick}
         >
-          <svg width="110" height="110" viewBox="0 0 110 110" fill="none">
-            <circle
-              cx="55"
-              cy="55"
-              r="54"
-              stroke="#a78bfa"
-              strokeWidth="2"
-              fill="#f3f0ff"
-            />
-            <ellipse cx="55" cy="50" rx="28" ry="26" stroke="#a78bfa" strokeWidth="2" />
-            <ellipse cx="55" cy="90" rx="36" ry="18" stroke="#a78bfa" strokeWidth="2" />
-          </svg>
+          {!avatar && (
+            <svg width="110" height="110" viewBox="0 0 110 110" fill="none">
+              <circle
+                cx="55"
+                cy="55"
+                r="54"
+                stroke="#a78bfa"
+                strokeWidth="2"
+                fill="#f3f0ff"
+              />
+              <ellipse cx="55" cy="50" rx="28" ry="26" stroke="#a78bfa" strokeWidth="2" />
+              <ellipse cx="55" cy="90" rx="36" ry="18" stroke="#a78bfa" strokeWidth="2" />
+            </svg>
+          )}
         </div>
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/*"
+          style={{ display: "none" }}
+          onChange={handleFileChange}
+        />
         {/* Имя */}
         <div
           style={{

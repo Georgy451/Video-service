@@ -2,6 +2,12 @@ from django.shortcuts import render
 from rest_framework import viewsets
 from .models import Moment, Profile as ProfileModel
 from .serializers import MomentSerializer, ProfileSerializer, VideoSerializer
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+from .models import Profile
+from django.contrib.auth.models import User
+from rest_framework.parsers import MultiPartParser, FormParser
 
 
 
@@ -32,6 +38,25 @@ class MomentViewSet(viewsets.ModelViewSet):
             serializer.save(user_id=user_id)
         else:
             serializer.save()
+
+class AvatarUploadAPI(APIView):
+    parser_classes = (MultiPartParser, FormParser)  
+
+    def patch(self, request, *args, **kwargs):
+        user_id = request.data.get("user_id")
+        avatar = request.FILES.get("avatar")
+
+        if not user_id or not avatar:
+            return Response({"detail": "user_id и avatar обязательны"}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            user = User.objects.get(id=user_id)
+            profile, created = Profile.objects.get_or_create(user=user)
+            profile.avatar = avatar
+            profile.save()
+            return Response({"detail": "Аватар успешно обновлен", "avatar_url": profile.avatar.url}, status=status.HTTP_200_OK)
+        except User.DoesNotExist:
+            return Response({"detail": "Пользователь не найден"}, status=status.HTTP_404_NOT_FOUND)
 
 
 
