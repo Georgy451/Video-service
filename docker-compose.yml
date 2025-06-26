@@ -1,0 +1,60 @@
+services:
+  registration:
+    build:
+      context: ./registration
+      dockerfile: .dockerfile
+    container_name: registration-service
+    command: python manage.py runserver 0.0.0.0:8001
+    volumes:
+      - ./registration:/app
+    ports:
+      - "8001:8001"
+    environment:
+      - DEBUG=True
+    depends_on:
+      - db
+
+  videosite:
+    build:
+      context: ./videosite
+      dockerfile: dockerfile
+    container_name: videosite-service
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - ./videosite:/app
+      - ./videosite/media:/app/media
+    ports:
+      - "8000:8000"
+    environment:
+      - DEBUG=True
+    depends_on:
+      - db
+
+  frontend:
+    build:
+      context: ./videosite-frontend
+      dockerfile: dockerfile
+    container_name: videosite-frontend
+    stdin_open: true
+    tty: true
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./videosite-frontend:/app
+    environment:
+      - CHOKIDAR_USEPOLLING=true
+
+  db:
+    image: postgres:15
+    container_name: videosite-db
+    environment:
+      POSTGRES_USER: home
+      POSTGRES_PASSWORD: georgdobriy222222
+      POSTGRES_DB: Georgy
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+volumes:
+  postgres_data:
