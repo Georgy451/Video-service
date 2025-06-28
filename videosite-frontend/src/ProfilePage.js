@@ -4,6 +4,7 @@ function ProfilePage() {
   const [username, setUsername] = useState("");
   const [userVideos, setUserVideos] = useState([]);
   const [avatar, setAvatar] = useState(null); // Состояние для аватара
+  const [avatarHover, setAvatarHover] = useState(false);
   const fileInputRef = useRef(null); // Реф для поля загрузки файла
 
   useEffect(() => {
@@ -14,16 +15,23 @@ function ProfilePage() {
     }
   }, []);
 
+  const fetchProfile = async (userId) => {
+    try {
+      const res = await fetch(`http://localhost:8000/api/profiles/${userId}/`);
+      const data = await res.json();
+      setAvatar(data.avatar);
+    } catch (err) {
+      console.error("Ошибка загрузки аватара:", err);
+    }
+  };
+
   useEffect(() => {
     // Получение ID пользователя из LocalStorage
     const userId = localStorage.getItem("userId");
 
     if (userId) {
       // Запрос к API для получения аватара текущего пользователя
-      fetch(`http://localhost:8000/api/profiles/${userId}/`)
-        .then((res) => res.json())
-        .then((data) => setAvatar(data.avatar))
-        .catch((err) => console.error("Ошибка загрузки аватара:", err));
+      fetchProfile(userId);
     }
   }, []);
 
@@ -41,35 +49,58 @@ function ProfilePage() {
   }, []);
 
   const handleAvatarClick = () => {
-    fileInputRef.current.click(); // Открытие диалога выбора файла
+    fileInputRef.current.click();
   };
+
+  const handleAvatarMouseEnter = () => setAvatarHover(true);
+  const handleAvatarMouseLeave = () => setAvatarHover(false);
 
   const handleFileChange = async (e) => {
     const file = e.target.files[0];
     if (file) {
       const formData = new FormData();
       formData.append("avatar", file);
-
       const userId = localStorage.getItem("userId");
-      formData.append("user_id", userId); // Добавляем user_id в FormData
-
-      console.log("Отправляемые данные:", { userId, avatar: file.name }); // Логирование данных
-
+      formData.append("user_id", userId);
       try {
         const response = await fetch(`http://localhost:8000/api/upload-avatar/`, {
           method: "PATCH",
           body: formData,
         });
         if (response.ok) {
-          const data = await response.json();
-          setAvatar(data.avatar); // Обновление аватара
+          // После загрузки аватара — повторно получить профиль
+          await fetchProfile(userId);
         } else {
-          console.error("Ошибка загрузки аватара");
+          alert("Ошибка загрузки аватара");
         }
       } catch (error) {
-        console.error("Ошибка соединения:", error);
+        alert("Ошибка соединения с сервером");
       }
     }
+  };
+
+  // Функция для удаления видео
+  const handleDeleteVideo = async (videoId) => {
+    if (!window.confirm('Вы уверены, что хотите удалить это видео?')) return;
+    try {
+      const response = await fetch(`http://localhost:8000/api/moments/${videoId}/`, {
+        method: 'DELETE',
+      });
+      if (response.ok) {
+        setUserVideos((prev) => prev.filter((v) => v.id !== videoId));
+      } else {
+        alert('Ошибка при удалении видео');
+      }
+    } catch (error) {
+      alert('Ошибка при удалении видео');
+    }
+  };
+
+  // Преобразование относительного пути аватара в абсолютный URL
+  const getAvatarUrl = (avatarPath) => {
+    if (!avatarPath) return null;
+    if (avatarPath.startsWith('http')) return avatarPath;
+    return `http://localhost:8000${avatarPath}`;
   };
 
   return (
@@ -102,15 +133,18 @@ function ProfilePage() {
             width: 160,
             height: 160,
             borderRadius: "50%",
-            background: avatar ? `url(${avatar}) center/cover` : "linear-gradient(135deg, #ede9fe 60%, #c7d2fe 100%)",
+            background: avatar ? `url(${getAvatarUrl(avatar)}) center/cover` : "linear-gradient(135deg, #ede9fe 60%, #c7d2fe 100%)",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
             marginBottom: 24,
             boxShadow: "0 2px 16px #bbaaff22",
             cursor: "pointer",
+            position: "relative",
           }}
           onClick={handleAvatarClick}
+          onMouseEnter={handleAvatarMouseEnter}
+          onMouseLeave={handleAvatarMouseLeave}
         >
           {!avatar && (
             <svg width="110" height="110" viewBox="0 0 110 110" fill="none">
@@ -125,6 +159,25 @@ function ProfilePage() {
               <ellipse cx="55" cy="50" rx="28" ry="26" stroke="#a78bfa" strokeWidth="2" />
               <ellipse cx="55" cy="90" rx="36" ry="18" stroke="#a78bfa" strokeWidth="2" />
             </svg>
+          )}
+          {avatarHover && (
+            <div
+              style={{
+                position: "absolute",
+                bottom: 10,
+                left: 0,
+                width: "100%",
+                textAlign: "center",
+                background: "rgba(0,0,0,0.5)",
+                color: "#fff",
+                borderRadius: "0 0 50% 50%",
+                padding: "8px 0 12px 0",
+                fontWeight: 600,
+                fontSize: 18,
+              }}
+            >
+              Загрузить аватар
+            </div>
           )}
         </div>
         <input
@@ -192,6 +245,23 @@ function ProfilePage() {
                     borderRadius: "18px",
                   }}
                 />
+                <button
+                  onClick={() => handleDeleteVideo(video.id)}
+                  style={{
+                    position: "absolute",
+                    top: 10,
+                    left: 14,
+                    background: "#ffdddd",
+                    color: "#a00",
+                    border: "none",
+                    borderRadius: 8,
+                    padding: "4px 12px",
+                    fontWeight: 600,
+                    cursor: "pointer",
+                  }}
+                >
+                  Удалить
+                </button>
                 <span
                   style={{
                     position: "absolute",

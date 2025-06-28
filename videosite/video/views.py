@@ -22,6 +22,15 @@ class ProfileViewSet(viewsets.ModelViewSet):
     queryset = ProfileModel.objects.all()
     serializer_class = ProfileSerializer
 
+    def retrieve(self, request, *args, **kwargs):
+        user_id = kwargs.get('pk')
+        try:
+            user = User.objects.get(pk=user_id)
+        except User.DoesNotExist:
+            return Response({'detail': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+        profile, created = ProfileModel.objects.get_or_create(user=user)
+        serializer = self.get_serializer(profile)
+        return Response(serializer.data)
 
 class MomentViewSet(viewsets.ModelViewSet):
     queryset = Moment.objects.all().order_by('-created_at')
